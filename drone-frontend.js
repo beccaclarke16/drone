@@ -1,24 +1,28 @@
 function init() {
-    tracker = initTracker("#example");
-    tracking.track("#example .drone", tracker);
-}
+        tracker = initTracker("#droneView");
+        droneConnection.streamImage(tracker, "#droneView .drone");
+    }
 
 function initTracker(element) {
 
     var tracker = new tracking.ColorTracker();
-    TrackerUtils.startTrackingColors(tracker);
+    //TrackerUtils.startTrackingColors(tracker);
     TrackerUtils.addTrackingColor("#A9070F", "red", tracker);
-    TrackerUtils.addTrackingColor("FF0E16", "brighter red",tracker);
+   // TrackerUtils.addTrackingColor("FF0E16", "brighter red",tracker);
     TrackerUtils.addTrackingColor("#5EA24E", "green", tracker);
-    TrackerUtils.addTrackingColor("#CB7F84", "magenta", tracker);
-    TrackerUtils.addTrackingColor("#5EA24E", "bright green", tracker);
+    //TrackerUtils.addTrackingColor("#CB7F84", "magenta", tracker);
+    //TrackerUtils.addTrackingColor("#5EA24E", "bright green", tracker);
     TrackerUtils.startTrackingColors(tracker);
     // Whenever there is a new color detected, mark them
-    tracker.on('track', function(event) {
-        markColors(event.data,element);
+
+    tracker.on('track', function (event) {
+        markColors(event.data, element);
+        decideDroneMovement(event.data);
     });
 
+
     return tracker;
+
 }
 function markColors(colors,element){
     var canvas = $(element + ' .canvas').get(0);
@@ -40,4 +44,30 @@ function writeRectangle(rect, element) {
         .append(rect.color + ": " + rect.width + "X" + rect.height)
         .append(" @ " + rect.x + ":" + rect.y)
 }
+function decideDroneMovement(colors){
+    var move = {
+        left: false,
+        right: false
+    };
+
+    colors.forEach(function(rectangle) {
+        if (rectangle.color === "green") {
+            if (rectangle.width &gt; 250) {
+                move.left = true;
+            }
+        }
+
+        else if (rectangle.color === "red") {
+            if (rectangle.width &gt; 250) {
+                move.right = true;
+            }
+        }
+
+    });
+
+    console.log("Move", move);
+    droneConnection.send(move);
+}
+
+
 window.addEventListener("load", init);
