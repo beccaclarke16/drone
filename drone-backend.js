@@ -47,6 +47,15 @@ function fly(robot) {
     after(23 * 1000, function () {
         bot.drone.stop();
     });*/
+    after(5*1000, function() {
+        bot.drone.forward(0.05);
+    });
+
+    after(40*1000, function() {
+        bot.drone.land();
+    });
+    after(45*1000, function() {
+        bot.drone.stop();
     utils.instructionListener.on('move', moveDrone);
     bot.drone.getPngStream()
         .on("data", utils.sendFrame);
